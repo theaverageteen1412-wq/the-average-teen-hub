@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>The Average Teen Hub</title>
+    <!-- Firebase App (The core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <!-- Firebase Auth (For Google Sign-In) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+</head>
+<body style="text-align: center; font-family: Arial, sans-serif; background-color: #121212; color: #fff;">
+
+    <h1>Welcome to My Channel!</h1>
+    <h2>The Average Teen</h2>
+    <p><a href="https://www.youtube.com/@Theaverageteen-p4o" target="_blank" style="color: #3ea6ff;">Click here to visit The Average Teen on YouTube!</a></p>
+
+    <!-- Community Forum Section -->
+    <div style="background-color: #2f3136; color: #dcddde; max-width: 500px; margin: 20px auto; padding: 20px; border-radius: 8px; text-align: left;">
+        <h3 style="color: #ffffff; margin-top: 0; border-bottom: 1px solid #40444b; padding-bottom: 8px;">💬 Community Forums</h3>
+        
+        <p style="margin: 10px 0;"><strong># general-chat</strong><br><span style="font-size: 0.85em; color: #b9bbbe;">Talk about the latest vlogs and life.</span></p>
+        <p style="margin: 10px 0;"><strong># video-ideas</strong><br><span style="font-size: 0.85em; color: #b9bbbe;">Drop your suggestions for the next upload!</span></p>
+        <p style="margin: 10px 0;"><strong># study-aesthetic</strong><br><span style="font-size: 0.85em; color: #b9bbbe;">Share your study videos, study tips and ideas.</span></p>
+
+        <!-- Login Section -->
+        <div id="loginSection" style="margin-top: 20px; border-top: 1px solid #40444b; padding-top: 15px; text-align: center;">
+            <p style="font-size: 0.9em; color: #b9bbbe; margin-bottom: 12px;">Sign in with your Google account to join the chat:</p>
+            <button onclick="loginWithGoogle()" style="background-color: #4285F4; color: white; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">Sign in with Google</button>
+        </div>
+
+        <!-- Chat Box Section (Hidden until logged in) -->
+        <div id="chatSection" style="display: none; margin-top: 20px; border-top: 1px solid #40444b; padding-top: 15px;">
+            <p id="userInfo" style="font-size: 0.85em; color: #4BB543; margin-bottom: 10px;"></p>
+            <h4>Drop a message, idea, or media link:</h4>
+            <input type="text" id="userInput" placeholder="Type your message..." style="width: 70%; padding: 8px; border-radius: 4px; border: none; background: #40444b; color: #fff;">
+            <button onclick="postMessage()" style="padding: 8px 15px; background: #7289da; color: white; border: none; border-radius: 4px; cursor: pointer;">Send</button>
+            
+            <div id="chatStream" style="margin-top: 15px; max-height: 150px; overflow-y: auto; background: #202225; padding: 10px; border-radius: 4px; font-size: 0.9em;">
+                <p style="color: #8e9297; margin: 5px 0;"><em>No messages yet. Start the conversation!</em></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Placeholder Firebase configuration (requires a free firebase project setup)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider).then((result) => {
+                const user = result.user;
+                document.getElementById("loginSection").style.display = "none";
+                document.getElementById("chatSection").style.display = "block";
+                document.getElementById("userInfo").innerText = "Signed in as: " + user.displayName;
+            }).catch((error) => {
+                alert("Login failed: " + error.message);
+            });
+        }
+
+        function postMessage() {
+            var input = document.getElementById("userInput");
+            var stream = document.getElementById("chatStream");
+            var user = firebase.auth().currentUser;
+            
+            if (input.value.trim() !== "" && user) {
+                if (stream.innerHTML.includes("No messages yet")) {
+                    stream.innerHTML = "";
+                }
+                var newMsg = document.createElement("p");
+                newMsg.style.margin = "5px 0";
+                newMsg.innerHTML = "<strong>" + user.displayName + ":</strong> " + input.value;
+                stream.appendChild(newMsg);
+                input.value = "";
+                stream.scrollTop = stream.scrollHeight;
+            }
+        }
+    </script>
+
+</body>
+</html>
