@@ -6,6 +6,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <!-- Firebase Auth (For Google Sign-In) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body style="text-align: center; font-family: Arial, sans-serif; background-color: #121212; color: #fff;">
 
@@ -53,6 +54,7 @@
 
   // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth().signInWithPopup(provider).then((result) => {
@@ -66,21 +68,43 @@
         }
 
         function postMessage() {
-            var input = document.getElementById("userInput");
-            var stream = document.getElementById("chatStream");
-            var user = firebase.auth().currentUser;
-            
-            if (input.value.trim() !== "" && user) {
-                if (stream.innerHTML.includes("No messages yet")) {
-                    stream.innerHTML = "";
-                }
-                var newMsg = document.createElement("p");
-                newMsg.style.margin = "5px 0";
-                newMsg.innerHTML = "<strong>" + user.displayName + ":</strong> " + input.value;
-                stream.appendChild(newMsg);
-                input.value = "";
-                stream.scrollTop = stream.scrollHeight;
-            }
+  const input = document.getElementById("userInput");
+  const user = firebase.auth().currentUser;
+  
+  if (!user) {
+    alert("You must be logged in to post!");
+    return;
+  }
+  
+  if (input.value.trim() === "") return;
+
+  // Save the message to Firestore database
+  db.collection("messages").add({
+    name: user.displayName,
+    text: input.value,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    input.value = ""; // Clear input box
+  }).catch((error) => {
+    console.error("Error adding message: ", error);
+  });
+}
+
+// Listen for messages in real-time from Firestore
+db.collection("messages").orderBy("timestamp", "asc")
+  .onSnapshot((snapshot) => {
+    const chatStream = document.getElementById("chatStream");
+    chatStream.innerHTML = ""; // Clear current local view
+    
+    snapshot.forEach((doc) => {
+      const msg = doc.data();
+      const p = document.createElement("p");
+      p.style.color = "#8e9297";
+      p.style.margin = "5px 0";
+      p.innerHTML = `<strong>${msg.name || "Anonymous"}:</strong> ${msg.text}`;
+      chatStream.appendChild(p);
+    });
+});
         }
     </script>
 
