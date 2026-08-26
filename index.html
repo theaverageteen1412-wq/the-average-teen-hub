@@ -55,19 +55,19 @@
   // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().signInWithPopup(provider).then((result) => {
-                const user = result.user;
-                document.getElementById("loginSection").style.display = "none";
-                document.getElementById("chatSection").style.display = "block";
-                document.getElementById("userInfo").innerText = "Signed in as: " + user.displayName;
-            }).catch((error) => {
-                alert("Login failed: " + error.message);
-            });
-        }
+       function loginWithGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider).then((result) => {
+    const user = result.user;
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("chatSection").style.display = "block";
+    document.getElementById("userInfo").innerText = "Signed in as: " + user.displayName;
+  }).catch((error) => {
+    alert("Login failed: " + error.message);
+  });
+}
 
-        function postMessage() {
+function postMessage() {
   const input = document.getElementById("userInput");
   const user = firebase.auth().currentUser;
   
@@ -78,23 +78,21 @@
   
   if (input.value.trim() === "") return;
 
-  // Save the message to Firestore database
   db.collection("messages").add({
     name: user.displayName,
     text: input.value,
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
-    input.value = ""; // Clear input box
+    input.value = "";
   }).catch((error) => {
     console.error("Error adding message: ", error);
   });
 }
 
-// Listen for messages in real-time from Firestore
 db.collection("messages").orderBy("timestamp", "asc")
   .onSnapshot((snapshot) => {
     const chatStream = document.getElementById("chatStream");
-    chatStream.innerHTML = ""; // Clear current local view
+    chatStream.innerHTML = "";
     
     snapshot.forEach((doc) => {
       const msg = doc.data();
@@ -104,8 +102,7 @@ db.collection("messages").orderBy("timestamp", "asc")
       p.innerHTML = `<strong>${msg.name || "Anonymous"}:</strong> ${msg.text}`;
       chatStream.appendChild(p);
     });
-});
+  });
     </script>
-
 </body>
 </html>
