@@ -66,7 +66,7 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // 1. Handle Google Sign-In
+ // 1. Handle Google Sign-In
   function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     firebase.auth().signInWithPopup(provider).then((result) => {
@@ -77,10 +77,26 @@
       document.getElementById("chatSection").style.display = "block";
       document.getElementById("userInfo").innerText = "Signed in as: " + user.displayName + (isAdmin ? " (Admin)" : "");
       
+      // Send a welcome system message when logging in
+      sendSystemWelcomeMessage(user.displayName);
+
       // Start listening to the chat stream once logged in
       initChatListener();
     }).catch((error) => {
       alert("Login failed: " + error.message);
+    });
+  }
+
+  // Helper function to post the automated rule reminder
+  function sendSystemWelcomeMessage(userName) {
+    // Optional: Check if a welcome message was already sent recently, 
+    // or just add it straight to Firestore so everyone sees it.
+    db.collection("messages").add({
+      name: "🤖 System",
+      text: `${userName} joined the chat! Reminder: Please be kind and respectful to other members. ✨`,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch((error) => {
+      console.error("Error sending welcome message: ", error);
     });
   }
 
