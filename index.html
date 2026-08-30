@@ -71,7 +71,7 @@
     const user = result.user;
     
     // Check if this user is you (replace with your actual Gmail)
-    const isAdmin = (user.email === "your-email@gmail.com"); 
+    const isAdmin = (user.email === "your-actual-email@gmail.com"); 
 
     document.getElementById("loginSection").style.display = "none";
     document.getElementById("chatSection").style.display = "block";
@@ -125,20 +125,6 @@ function postMessage() {
     });
   });
 
-db.collection("messages").orderBy("timestamp", "asc")
-  .onSnapshot((snapshot) => {
-    const chatStream = document.getElementById("chatStream");
-    chatStream.innerHTML = "";
-    
-    snapshot.forEach((doc) => {
-      const msg = doc.data();
-      const p = document.createElement("p");
-      p.style.color = "#8e9297";
-      p.style.margin = "5px 0";
-      p.innerHTML = `<strong>${msg.name || "Anonymous"}:</strong> ${msg.text}`;
-      chatStream.appendChild(p);
-    });
-  });
-    </script>
+</script>
 </body>
 </html>
